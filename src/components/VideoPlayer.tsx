@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Heart, MessageCircle, Share2, Music } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Music, Play, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -20,16 +20,27 @@ export default function VideoPlayer({ video }: { video: Video }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiked, setIsLiked] = useState(video.isLiked);
   const [likesCount, setLikesCount] = useState(video.likes);
+  const [isMuted, setIsMuted] = useState(true);
+  const [showPlayButton, setShowPlayButton] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          videoRef.current?.play().catch(console.error);
-          setIsPlaying(true);
+          if (videoRef.current) {
+            videoRef.current.play().then(() => {
+              setIsPlaying(true);
+              setShowPlayButton(false);
+            }).catch((err) => {
+              console.error("Autoplay prevented:", err);
+              setIsPlaying(false);
+              setShowPlayButton(true);
+            });
+          }
         } else {
           videoRef.current?.pause();
           setIsPlaying(false);
+          setShowPlayButton(false);
         }
       },
       { threshold: 0.6 }
@@ -46,10 +57,22 @@ export default function VideoPlayer({ video }: { video: Video }) {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        setIsPlaying(false);
+        setShowPlayButton(true);
       } else {
-        videoRef.current.play().catch(console.error);
+        videoRef.current.play().then(() => {
+          setIsPlaying(true);
+          setShowPlayButton(false);
+        }).catch(console.error);
       }
-      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
     }
   };
 
@@ -76,14 +99,26 @@ export default function VideoPlayer({ video }: { video: Video }) {
       <video
         ref={videoRef}
         src={video.videoUrl}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover cursor-pointer"
         loop
         playsInline
+        muted={isMuted}
         onClick={togglePlay}
       />
       
+      {showPlayButton && (
+        <div 
+          className="absolute inset-0 flex items-center justify-center bg-black/20 cursor-pointer"
+          onClick={togglePlay}
+        >
+          <div className="bg-black/50 rounded-full p-4 text-white">
+            <Play size={48} fill="currentColor" />
+          </div>
+        </div>
+      )}
+
       {/* Right Sidebar Actions */}
-      <div className="absolute right-4 bottom-24 flex flex-col items-center gap-6">
+      <div className="absolute right-4 bottom-24 flex flex-col items-center gap-6 z-10">
         <div className="relative w-12 h-12 rounded-full border-2 border-white overflow-hidden">
           <img src={video.profileImage} alt={video.username} className="w-full h-full object-cover" />
         </div>
@@ -111,7 +146,7 @@ export default function VideoPlayer({ video }: { video: Video }) {
       </div>
 
       {/* Bottom Info */}
-      <div className="absolute bottom-4 left-4 right-20 text-white">
+      <div className="absolute bottom-4 left-4 right-20 text-white z-10 pointer-events-none">
         <h3 className="font-bold text-lg drop-shadow-md">@{video.username}</h3>
         <p className="text-sm mt-2 line-clamp-2 drop-shadow-md">{video.caption}</p>
         <div className="flex items-center gap-2 mt-3 text-sm font-medium drop-shadow-md">
@@ -119,6 +154,14 @@ export default function VideoPlayer({ video }: { video: Video }) {
           <span>Original Audio - @{video.username}</span>
         </div>
       </div>
+
+      {/* Mute Toggle */}
+      <button 
+        onClick={toggleMute}
+        className="absolute top-4 right-4 p-2 bg-black/40 backdrop-blur-sm rounded-full text-white z-10"
+      >
+        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+      </button>
     </div>
   );
 }

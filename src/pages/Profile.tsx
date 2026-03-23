@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Settings, Grid, Heart, Bookmark, LogOut } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Settings, Grid, Heart, Bookmark, LogOut, Camera } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Profile() {
-  const { user: authUser, logout } = useAuth();
+  const { user: authUser, logout, updateUserProfile } = useAuth();
   const [videos, setVideos] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'videos' | 'liked'>('videos');
   const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (authUser) {
@@ -23,6 +25,43 @@ export default function Profile() {
         });
     }
   }, [authUser]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Ensure these are set in your .env file
+      const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'mikmok_preset';
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'demo';
+      
+      formData.append('upload_preset', uploadPreset);
+      
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.secure_url) {
+        await updateUserProfile({ photoURL: data.secure_url });
+      } else {
+        throw new Error(data.error?.message || 'Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please check your Cloudinary configuration.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   if (loading || !authUser) {
     return (
@@ -44,7 +83,20 @@ export default function Profile() {
 
       {/* Profile Info */}
       <div className="flex flex-col items-center px-4 py-6 gap-4">
-        <div className="w-24 h-24 rounded-full border-2 border-zinc-800 overflow-hidden bg-zinc-800">
+        <div 
+          className="relative w-24 h-24 rounded-full border-2 border-zinc-800 overflow-hidden bg-zinc-800 cursor-pointer group"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {isUploading ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+            </div>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <Camera size={24} className="text-white" />
+            </div>
+          )}
+          
           {authUser.photoURL ? (
             <img src={authUser.photoURL} alt={authUser.displayName || 'User'} className="w-full h-full object-cover" />
           ) : (
@@ -53,6 +105,15 @@ export default function Profile() {
             </div>
           )}
         </div>
+        
+        <input 
+          type="file" 
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          accept="image/*"
+          className="hidden"
+        />
+
         <h2 className="text-lg font-semibold">@{authUser.email?.split('@')[0] || 'user'}</h2>
         
         <div className="flex items-center gap-8 mt-2">

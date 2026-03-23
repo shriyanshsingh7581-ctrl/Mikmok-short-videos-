@@ -1,5 +1,5 @@
 {
-  "name": "Mikmok",
-  "description": "A short video sharing platform using Cloudinary for fast video delivery.",
+  "name": "LuxeVoyage",
+  "description": "A high-end digital experience for potential travelers to discover and share luxury destinations.",
   "requestFramePermissions": ["camera", "microphone"]
 }

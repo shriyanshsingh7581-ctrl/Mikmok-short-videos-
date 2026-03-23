@@ -38,27 +38,27 @@ export default function Login() {
   };
 
   return (
-    <div className="h-full w-full flex flex-col items-center justify-center bg-black text-white p-6">
+    <div className="h-full w-full flex flex-col items-center justify-center bg-black text-white p-6 font-sans">
       <div className="max-w-md w-full flex flex-col items-center gap-6">
         <div className="text-center mb-4">
-          <h1 className="text-4xl font-bold mb-2">MikMok</h1>
-          <p className="text-zinc-400">Log in to watch, like, and upload videos</p>
+          <h1 className="text-5xl font-light mb-3 tracking-tight" style={{ fontFamily: '"Playfair Display", serif' }}>LuxeVoyage</h1>
+          <p className="text-zinc-400 font-light tracking-wide text-sm uppercase">Discover high-end travel experiences</p>
         </div>
 
         {error && (
-          <div className="w-full bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-sm text-center">
+          <div className="w-full bg-red-900/20 border border-red-500/30 text-red-400 p-3 rounded-lg text-sm text-center font-light">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 mt-4">
           <input
             type="email"
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-white transition-colors"
+            className="w-full bg-transparent border-b border-zinc-700 px-2 py-3 text-white placeholder:text-zinc-600 focus:outline-none focus:border-white transition-colors font-light"
           />
           <input
             type="password"
@@ -67,39 +67,39 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-white transition-colors"
+            className="w-full bg-transparent border-b border-zinc-700 px-2 py-3 text-white placeholder:text-zinc-600 focus:outline-none focus:border-white transition-colors font-light"
           />
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 bg-pink-600 text-white py-3 px-6 rounded-full font-semibold text-lg hover:bg-pink-700 transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 bg-white text-black py-3 px-6 rounded-full font-medium mt-4 hover:bg-zinc-200 transition-colors disabled:opacity-50"
           >
-            {isLoading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Log In')}
+            {isLoading ? 'Please wait...' : (isSignUp ? 'Create Account' : 'Sign In')}
           </button>
         </form>
 
         <div className="w-full flex items-center gap-4 my-2">
           <div className="flex-1 h-px bg-zinc-800"></div>
-          <span className="text-zinc-500 text-sm">OR</span>
+          <span className="text-zinc-600 text-xs uppercase tracking-widest">or</span>
           <div className="flex-1 h-px bg-zinc-800"></div>
         </div>
 
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 bg-white text-black py-3 px-6 rounded-full font-semibold text-lg hover:bg-zinc-200 transition-colors"
+          className="w-full flex items-center justify-center gap-3 bg-transparent border border-zinc-700 text-white py-3 px-6 rounded-full font-medium hover:bg-zinc-900 transition-colors"
         >
-          <LogIn size={24} />
+          <LogIn size={20} className="text-zinc-400" />
           Continue with Google
         </button>
 
         <button
           onClick={() => setIsSignUp(!isSignUp)}
-          className="text-zinc-400 hover:text-white transition-colors text-sm mt-4"
+          className="text-zinc-500 hover:text-white transition-colors text-sm mt-4 font-light"
         >
-          {isSignUp ? 'Already have an account? Log In' : "Don't have an account? Sign Up"}
+          {isSignUp ? 'Already a member? Sign In' : "Not a member? Create Account"}
         </button>
 
-        <div className="mt-8 text-center text-sm text-zinc-500">
+        <div className="mt-8 text-center text-xs text-zinc-600 font-light">
           <p>By continuing, you agree to our Terms of Service and Privacy Policy.</p>
         </div>
       </div>

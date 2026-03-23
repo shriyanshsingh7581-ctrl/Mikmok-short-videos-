@@ -123,7 +123,7 @@ export default function Upload() {
           <textarea
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            placeholder="Describe your video... #hashtags"
+            placeholder="Describe your luxury travel experience... #paris #resort"
             className="w-full bg-transparent border-none outline-none resize-none text-base placeholder:text-zinc-500 min-h-[100px]"
             maxLength={150}
           />
