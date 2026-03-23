@@ -1,0 +1,5 @@
+{
+  "name": "Mikmok",
+  "description": "A short video sharing platform using Cloudinary for fast video delivery.",
+  "requestFramePermissions": ["camera", "microphone"]
+}

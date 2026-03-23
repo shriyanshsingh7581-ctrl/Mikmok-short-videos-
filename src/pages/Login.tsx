@@ -1,0 +1,108 @@
+import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { LogIn, Mail } from 'lucide-react';
+
+export default function Login() {
+  const { loginWithGoogle, loginWithEmail, signupWithEmail } = useAuth();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      if (isSignUp) {
+        await signupWithEmail(email, password);
+      } else {
+        await loginWithEmail(email, password);
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during authentication.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in with Google.');
+    }
+  };
+
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center bg-black text-white p-6">
+      <div className="max-w-md w-full flex flex-col items-center gap-6">
+        <div className="text-center mb-4">
+          <h1 className="text-4xl font-bold mb-2">MikMok</h1>
+          <p className="text-zinc-400">Log in to watch, like, and upload videos</p>
+        </div>
+
+        {error && (
+          <div className="w-full bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-sm text-center">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+          <input
+            type="email"
+            placeholder="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-white transition-colors"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-white transition-colors"
+          />
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full flex items-center justify-center gap-2 bg-pink-600 text-white py-3 px-6 rounded-full font-semibold text-lg hover:bg-pink-700 transition-colors disabled:opacity-50"
+          >
+            {isLoading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Log In')}
+          </button>
+        </form>
+
+        <div className="w-full flex items-center gap-4 my-2">
+          <div className="flex-1 h-px bg-zinc-800"></div>
+          <span className="text-zinc-500 text-sm">OR</span>
+          <div className="flex-1 h-px bg-zinc-800"></div>
+        </div>
+
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full flex items-center justify-center gap-3 bg-white text-black py-3 px-6 rounded-full font-semibold text-lg hover:bg-zinc-200 transition-colors"
+        >
+          <LogIn size={24} />
+          Continue with Google
+        </button>
+
+        <button
+          onClick={() => setIsSignUp(!isSignUp)}
+          className="text-zinc-400 hover:text-white transition-colors text-sm mt-4"
+        >
+          {isSignUp ? 'Already have an account? Log In' : "Don't have an account? Sign Up"}
+        </button>
+
+        <div className="mt-8 text-center text-sm text-zinc-500">
+          <p>By continuing, you agree to our Terms of Service and Privacy Policy.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
